@@ -245,6 +245,69 @@ def get_distance_between_nodes(node_a_sequences, node_b_sequences, distance_map)
     >>> distance_map = {"default": 0.0, "map": {"gene": {2: {('T', 'G'): 0.5}}}}
     >>> get_distance_between_nodes(node_b_sequences, node_a_sequences, distance_map)
     0.0
+
+    Treat a single indel as one event.
+
+    >>> node_a_sequences = {"gene": "ACTG"}
+    >>> node_b_sequences = {"gene": "A--G"}
+    >>> distance_map = {"default": 1, "map": {}}
+    >>> get_distance_between_nodes(node_a_sequences, node_b_sequences, distance_map)
+    1
+
+    Use the maximum weight of all sites affected by an indel with a site-specific distance map.
+
+    >>> distance_map = {"default": 0, "map": {"gene": {1: 1, 2: 2}}}
+    >>> get_distance_between_nodes(node_a_sequences, node_b_sequences, distance_map)
+    2
+
+    Use the maximum weight of all mutations at all sites affected by an indel with a mutation-specific distance map.
+
+    >>> distance_map = {
+    ...     "default": 0,
+    ...     "map": {
+    ...         "gene": {
+    ...             1: {
+    ...                 ('C', 'G'): 1,
+    ...                 ('C', 'A'): 2
+    ...             },
+    ...             2: {
+    ...                 ('T', 'G'): 3,
+    ...                 ('T', 'A'): 2
+    ...             }
+    ...         }
+    ...     }
+    ... }
+    >>> get_distance_between_nodes(node_a_sequences, node_b_sequences, distance_map)
+    3
+
+    Use the maximum weight of gaps at all sites affected by an indel with a mutation-specific distance map.
+
+    >>> distance_map = {
+    ...     "default": 0,
+    ...     "map": {
+    ...         "gene": {
+    ...             1: {
+    ...                 ('C', '-'): 1,
+    ...                 ('C', 'A'): 2
+    ...             },
+    ...             2: {
+    ...                 ('T', 'G'): 3,
+    ...                 ('T', '-'): 2
+    ...             }
+    ...         }
+    ...     }
+    ... }
+    >>> get_distance_between_nodes(node_a_sequences, node_b_sequences, distance_map)
+    2
+
+    Count mismatches adjacent to indel events.
+
+    >>> node_a_sequences = {"gene": "ACTGTA"}
+    >>> node_b_sequences = {"gene": "A--CCA"}
+    >>> distance_map = {"default": 1, "map": {}}
+    >>> get_distance_between_nodes(node_a_sequences, node_b_sequences, distance_map)
+    3
+
     """
     distance_type = type(distance_map["default"])
     distance = distance_type(0)
